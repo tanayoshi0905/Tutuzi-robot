@@ -1,6 +1,7 @@
+#include <DueTimer.h>
+
 #include <Arduino.h>
 #include <im920creceive_not_SoftwareSerial.h>
-#include <DueTimer.h>
 
 const int limit_pin[] = {0, 0, 0, 0}; //ステアリング左、右、矢押し出しギア、押し出し末端
 const int tire_pin[2][2] = {{0, 0}, {0, 0}}; //タイヤモーターピン、[左][右]{PWM1, PWM2}
@@ -39,7 +40,8 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
   im920creceive_setup();
-  Timer8.attachInterrupt(timer_com).start(1000);
+  FlexiTimer2::set(1, timer_com);
+  FlexiTimer2::start();
 
   for(int i=0; i<4; i++){
     pinMode(limit_pin[i], INPUT_PULLUP);
