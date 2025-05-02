@@ -1,14 +1,14 @@
 #include <Arduino.h>
-#include <im920creceive_not_SoftwareSerial.h>
+#include "im920creceive_not_SoftwareSerial.h"
 #include <DueTimer.h>
 
-const int limit_pin[] = {0, 0, 0, 0}; //ステアリング左、右、矢押し出しギア、押し出し末端
-const int tire_pin[2][2] = {{0, 0}, {0, 0}}; //タイヤモーターピン、[左][右]{PWM1, PWM2}
-const int roller_pin[2][2] = {{0, 2}, {0, 0}}; //矢射出モーターピン、[上][下]{DIR, PWM}
-const int steering_pin[] = {0, 0}; //ステアリングモーターピン、{PWM1, PWM2}
-const int pushout_pin[] = {0, 0}; //矢押し出しモーターピン、{PWM1, PWM2}
+const int limit_pin[] = {34, 33, 35, 36}; //ステアリング左、右、矢押し出しギア、押し出し末端
+const int tire_pin[2][2] = {{5, 6}, {7, 8}}; //タイヤモーターピン、[左][右]{PWM1, PWM2}
+const int roller_pin[2][2] = {{41, 2}, {45, 4}}; //矢射出モーターピン、[上][下]{DIR, PWM}
+const int steering_pin[] = {9, 10}; //ステアリングモーターピン、{PWM1, PWM2}
+const int pushout_pin[] = {11, 12}; //矢押し出しモーターピン、{PWM1, PWM2}
 
-const int disconnect_set_count = 100; //この時間以内にデータを受信できなかったら未接続とみなす
+const int disconnect_set_count = 100; //この時間以内にデータを受信できなかったら未接続とみなすf
 
 const int steering_speed = 20; //ステアリングの回転速度（PWM）
 const int tire_max_speed = 60; //タイヤの最大以下略
@@ -38,8 +38,9 @@ void timer_com(){
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
+  Serial.print("Hello");
   im920creceive_setup();
-  Timer8.attachInterrupt(timer_com).start(1000);
+  Timer7.attachInterrupt(timer_com).start(1000);
 
   for(int i=0; i<4; i++){
     pinMode(limit_pin[i], INPUT_PULLUP);
@@ -62,6 +63,7 @@ void setup() {
 }
 
 void data_store() {
+  Serial.println(receive_data);
   for(int i=0; i<4; i++) {
     tact_data[i] = ((int)receive_data[5] >> i) & 0b00000001; //タクト
   }

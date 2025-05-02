@@ -3,17 +3,19 @@ void ascii_to_hex(char *, char *);
 int receive_timecount = 0;
 
 void im920creceive_setup() {  //メインファイルのsetup()にこの関数を入れる
-  Serial.begin(19200);
+  Serial3.begin(19200);
+  //Serial.begin(115200);
 }
 
 void DUE_im920creceive(char *returndata, bool *disconnect_p) {
+  //Serial.print("aaa\r\n");
   static char DUE_im920creceive_input[40];  //staticなので、メインプログラムで変数名が重複しないように、あえて長い変数名にしてある
   char inputsub;
   static int DUE_im920creceive_counter = 0;  //staticなので、メインプログラムで変数名が重複しないように、あえて長い変数名にしてある
 
 
-  while (Serial.available()) {
-    inputsub = Serial.read();
+  while (Serial3.available()) {
+    inputsub = Serial3.read();
     DUE_im920creceive_input[DUE_im920creceive_counter] = inputsub;
     DUE_im920creceive_counter++;
     if (inputsub == '\n') {
@@ -74,8 +76,8 @@ void ascii_to_hex(char *im920creceive, char *outdata) {
   }
 
   /*for (int k = 0; k < 8; k++) {
-    Serial.print((int)outdata[k]);
-    Serial.print(' ');
+    Serial3.print((int)outdata[k]);
+    Serial3.print(' ');
   }
-  Serial.print("\r\n");*/
+  Serial3.print("\r\n");*/
 }
