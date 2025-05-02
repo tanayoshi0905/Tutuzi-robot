@@ -8,13 +8,14 @@ const int roller_pin[2][2] = {{41, 2}, {45, 4}}; //矢射出モーターピン�
 const int steering_pin[] = {11, 12}; //ステアリングモーターピン、{PWM1, PWM2}
 const int pushout_pin[] = {9, 10}; //矢押し出しモーターピン、{PWM1, PWM2}
 
-const int disconnect_set_count = 100; //この時間以内にデータを受信できなかったら未接続とみなすf
+const int disconnect_set_count = 100; //この時間以内にデータを受信できなかったら未接続とみなす
 
-const int steering_speed = 250; //ステアリングの回転速度（PWM）
-const int tire_max_speed = 255; //タイヤの最大以下略
-const int tire_tyousei[2] = {255, 230}; //タイヤ各調整用
+const int steering_speed = 80; //ステアリングの回転速度（PWM）
+const int tire_max_speed = 100; //タイヤの最大以下略
+const int tire_tyousei[2] = {90, 100}; //タイヤ各調整用（右、左）
 const int roller_speed = 250; //矢射出ローラーの以下略
-const int pushout_speed = 230; //矢押し出し機構の以下略
+const int roller_tyousei[2] = {235, 255}; //矢射出ローラーの各調整用（上、下）
+const int pushout_speed = 80; //矢押し出し機構の以下略
 
 bool disconnect = 0; //通信状況
 char receive_data[8]; //受信データ格納用
@@ -26,7 +27,7 @@ int js_data[4]; //ジョイスティック{左X, 左Y、右X、右Y}
 int tgl_data; //トグルスイッチ
 int limit_data[4]; //リミットスイッチ
 
-int steering_operation = 0; //ステアリングの操作（-1=左、0=無、1=右）
+int steering_operation = 0; //ステアリングのあるべき状態（-1=左、0=無、1=右）
 
 int tire_pwm[2]; //タイヤのPWM格納用
 int tire_dir[2]; //タイヤ回転向き格納用
@@ -75,7 +76,7 @@ void data_store() {
   tgl_data = receive_data[4]; //トグル
 
   for(int i=0; i<4; i++){
-    js_data[i] = map(receive_data[i], 0, 127, -255, 255); //ジョイスティック
+    js_data[i] = map(receive_data[i], 0, 126, -255, 255); //ジョイスティック
   }
 
   for(int i=0; i<4; i++){
@@ -113,6 +114,8 @@ void tire(int motor) {
   switch(motor){
     case 0:
       tire_pwm[motor] = js_data[1] + js_data[2]; //左タイヤ
+      Serial.println(js_data[1]);
+      Serial.println(js_data[2]);
       break;
     case 1:
       tire_pwm[motor] = js_data[1] - js_data[2]; //右タイヤ
@@ -124,7 +127,6 @@ void tire(int motor) {
   }else if(tire_pwm[motor] < -1 * tire_max_speed){
     tire_pwm[motor] = tire_max_speed * (-1);
   }
-  //Serial.println(tire_pwm[motor]);
   tire_pwm[motor] = map(tire_pwm[motor], -(tire_max_speed), tire_max_speed, -(tire_tyousei[motor]), tire_tyousei[motor]);
   //Serial.println(tire_pwm[motor]);
   if(tire_pwm[motor] >= 0){ //正転時
@@ -147,8 +149,8 @@ void arrow() {
         analogWrite(pushout_pin[0], 0); //何もしない
       }
 
-      analogWrite(roller_pin[0][1], roller_speed); //ローラーも回しておく
-      analogWrite(roller_pin[1][1], roller_speed);
+      analogWrite(roller_pin[0][1], roller_tyousei[0]); //ローラーも回しておく
+      analogWrite(roller_pin[1][1], roller_tyousei[1]);
       break;
 
     case 2: //トグル下
